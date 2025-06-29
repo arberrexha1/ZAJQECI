@@ -144,7 +144,8 @@
     }
 
     // Dërgo transaksionin për tërheqje nga kontrata
-    const receipt = await contract.methods.transfer(to, amountInUnits.toString()).send({ from: accounts[0] });
+const receipt = await contract.methods.withdraw(to, amountInUnits.toString()).send({ from: accounts[0] });
+
     document.getElementById("withdrawResult").textContent = "Tërheqja u realizua me sukses! Tx: " + receipt.transactionHash;
   } catch (err) {
     document.getElementById("withdrawResult").textContent = "Gabim në tërheqje: " + err.message;
