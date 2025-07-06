@@ -53,17 +53,18 @@ async function withdrawTokens() {
   const userAddress = accounts[0];
 
   const amount = document.getElementById("withdrawAmount").value;
-  const amountInWei = web3.utils.toWei(amount, 'mwei'); // USDT ka 6 decimals
+  const amountInMicro = web3.utils.toWei(amount, 'mwei'); // USDT ka 6 decimals
 
   try {
-    const result = await contract.methods.redeemUnderlying(amountInWei).send({ from: userAddress });
-    document.getElementById("withdrawResult").innerText = "Tërheqja u krye me sukses!";
+    const result = await contract.methods.redeemUnderlying(amountInMicro).send({ from: userAddress });
+    document.getElementById("withdrawResult").innerText = "✅ Tërheqja u krye me sukses!";
     console.log(result);
   } catch (error) {
-    console.error(error);
-    document.getElementById("withdrawResult").innerText = "Gabim gjatë tërheqjes.";
+    console.error("Gabim:", error);
+    document.getElementById("withdrawResult").innerText = "❌ Gabim gjatë tërheqjes: " + error.message;
   }
 }
+
 </script>
 </body>
 </html>
