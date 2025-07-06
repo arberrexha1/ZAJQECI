@@ -49,23 +49,19 @@ async function connectWallet() {
 }
 
 async function withdrawTokens() {
-  if (!contract) return alert("Së pari lidhu me portofolin.");
-  
-  const to = document.getElementById("withdrawAddress").value;
+  const accounts = await web3.eth.getAccounts();
+  const userAddress = accounts[0];
+
   const amount = document.getElementById("withdrawAmount").value;
-  if (!to || !amount) return alert("Ju lutem plotësoni adresën dhe shumën.");
+  const amountInWei = web3.utils.toWei(amount, 'mwei'); // USDT ka 6 decimals
 
   try {
-    const accounts = await web3.eth.getAccounts();
-    const decimals = 18; // ndrro nëse kontrata jote ka tjetër
-    const amountInUnits = BigInt(amount) * BigInt(10 ** decimals);
-
-    const receipt = await contract.methods.withdraw(to, amountInUnits.toString()).send({ from: accounts[0] });
-
-    document.getElementById("withdrawResult").textContent = "✅ Tërheqja u krye me sukses! Tx: " + receipt.transactionHash;
-  } catch (err) {
-    document.getElementById("withdrawResult").textContent = "❌ Gabim në tërheqje: " + err.message;
-    console.error(err);
+    const result = await contract.methods.redeemUnderlying(amountInWei).send({ from: userAddress });
+    document.getElementById("withdrawResult").innerText = "Tërheqja u krye me sukses!";
+    console.log(result);
+  } catch (error) {
+    console.error(error);
+    document.getElementById("withdrawResult").innerText = "Gabim gjatë tërheqjes.";
   }
 }
 </script>
