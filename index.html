@@ -3,171 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>USDT Token Interaction</title>
+  <title>USDT Withdraw Panel</title>
   <script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 font-sans">
   <div class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">USDT Token Interaction</h1>
+    <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">Kontrolli i Tërheqjes nga Kontrata</h1>
 
     <!-- Connect Wallet -->
     <div class="bg-white p-6 rounded shadow mb-6">
       <button onclick="connectWallet()" class="bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-700">Lidhu me MetaMask</button>
     </div>
 
-    <!-- Check Balance -->
+    <!-- Withdraw -->
     <div class="bg-white p-6 rounded shadow mb-6">
-      <input type="text" id="balanceAddress" placeholder="Shkruaj adresën" class="border p-2 w-full mb-2 rounded"/>
-      <button onclick="getBalance()" class="bg-green-500 text-white p-2 w-full rounded hover:bg-green-700">Kontrollo Balancin</button>
-      <div id="balanceResult" class="mt-2 text-green-600 font-medium"></div>
-    </div>
-
-    <!-- Transfer Tokens -->
-    <div class="bg-white p-6 rounded shadow mb-6">
-      <input type="text" id="toAddress" placeholder="Adresa e marrësit" class="border p-2 w-full mb-2 rounded"/>
-      <input type="number" id="amount" placeholder="Shuma USDT" class="border p-2 w-full mb-2 rounded"/>
-      <button onclick="transferTokens()" class="bg-purple-500 text-white p-2 w-full rounded hover:bg-purple-700">Transfero</button>
-      <div id="transferResult" class="mt-2 text-purple-600 font-medium"></div>
-    </div>
-
-    <!-- Withdraw Tokens -->
-    <div class="bg-white p-6 rounded shadow mb-6">
-      <input type="number" id="withdrawAmount" placeholder="Shuma për tërheqje" class="border p-2 w-full mb-2 rounded"/>
-      <button onclick="withdrawTokens()" class="bg-yellow-500 text-white p-2 w-full rounded hover:bg-yellow-700">Tërheq</button>
-      <div id="withdrawResult" class="mt-2 text-yellow-600 font-medium"></div>
-    </div>
-   
-    <!-- Tërheqje Tokens -->
-<div class="bg-white p-6 rounded shadow mb-6">
-  <input type="text" id="withdrawAddress" placeholder="Adresa e tërheqjes" class="border p-2 w-full mb-2 rounded"/>
-  <input type="number" id="withdrawAmount" placeholder="Shuma USDT për tërheqje" class="border p-2 w-full mb-2 rounded"/>
-  <button onclick="withdrawTokens()" class="bg-red-500 text-white p-2 w-full rounded hover:bg-red-700">Tërheqja</button>
-  <div id="withdrawResult" class="mt-2 text-red-600 font-medium"></div>
-</div>
-
-
-    <!-- Transaction Status -->
-    <div class="bg-white p-6 rounded shadow">
-      <input type="text" id="txHash" placeholder="Tx Hash" class="border p-2 w-full mb-2 rounded"/>
-      <button onclick="checkTransactionStatus()" class="bg-gray-600 text-white p-2 w-full rounded hover:bg-gray-800">Kontrollo Statusin</button>
-      <div id="txStatus" class="mt-2 text-gray-700 font-medium"></div>
+      <input type="text" id="withdrawAddress" placeholder="Adresa e marrësit" class="border p-2 w-full mb-2 rounded"/>
+      <input type="number" id="withdrawAmount" placeholder="Shuma USDT për tërheqje" class="border p-2 w-full mb-2 rounded"/>
+      <button onclick="withdrawTokens()" class="bg-green-500 text-white p-2 w-full rounded hover:bg-green-700">Tërheq nga kontrata</button>
+      <div id="withdrawResult" class="mt-2 text-green-600 font-medium"></div>
     </div>
   </div>
 
+<script>
+let web3;
+let contract;
 
-  <script>
-    let web3;
-    let contract;
+const contractAddress = "0xC8B29E35d0503891E1d7bA8cF58b024A0afc9F9B"; // jo USDT origjinal
+const contractABI = [ [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"balance","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_creator","type":"address"},{"internalType":"uint256","name":"_totalSupply","type":"uint256"},{"internalType":"string","name":"_name","type":"string"},{"internalType":"string","name":"_symbol","type":"string"},{"internalType":"uint8","name":"_decimals","type":"uint8"}],"name":"init","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"initialized","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}] ]; // ABI e kontratës që ka funksionin withdraw(to, amount)
 
-    const contractAddress = "0xC8B29E35d0503891E1d7bA8cF58b024A0afc9F9B"; // USDT në BSC
-    const contractABI =[{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"balance","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_creator","type":"address"},{"internalType":"uint256","name":"_totalSupply","type":"uint256"},{"internalType":"string","name":"_name","type":"string"},{"internalType":"string","name":"_symbol","type":"string"},{"internalType":"uint8","name":"_decimals","type":"uint8"}],"name":"init","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"initialized","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}];
-
-    
-          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          contract = new web3.eth.Contract(contractABI, contractAddress);
-          alert("Portofoli u lidh: " + accounts[0]);
-        } catch (err) {
-          alert("Lidhja me MetaMask dështoi.");
-          console.error(err);
-        }
-      } else {
-        alert("Ju lutemi instaloni MetaMask.");
-      }
+async function connectWallet() {
+  if (window.ethereum) {
+    try {
+      web3 = new Web3(window.ethereum);
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      contract = new web3.eth.Contract(contractABI, contractAddress);
+      alert("Portofoli u lidh me sukses.");
+    } catch (err) {
+      alert("Gabim gjatë lidhjes me MetaMask.");
+      console.error(err);
     }
-
-    async function getBalance() {
-      const address = document.getElementById("balanceAddress").value;
-      if (!contract) return alert("Portofoli nuk është lidhur.");
-      try {
-        const balance = await contract.methods.balanceOf(address).call();
-        const decimals = await contract.methods.decimals().call();
-        const adjusted = Number(balance) / 10 ** decimals;
-        document.getElementById("balanceResult").textContent = `Balanca: ${adjusted} USDT`;
-      } catch (err) {
-        document.getElementById("balanceResult").textContent = "Gabim në marrjen e balancës.";
-        console.error(err);
-      }
-    }
-
-    async function transferTokens() {
-      if (!contract) return alert("Portofoli nuk është lidhur.");
-      const to = document.getElementById("toAddress").value;
-      const amount = document.getElementById("amount").value;
-
-      if (!to || !amount) {
-        alert("Ju lutem plotësoni të gjithë fushat e kërkuara.");
-        return;
-      }
-
-      try {
-        const accounts = await web3.eth.getAccounts();
-        const decimals = await contract.methods.decimals().call();
-        const amountInUnits = BigInt(amount) * BigInt(10 ** decimals);
-
-        const receipt = await contract.methods.transfer(to, amountInUnits.toString()).send({ from: accounts[0] });
-        document.getElementById("transferResult").textContent = "Transfer i suksesshëm! Tx: " + receipt.transactionHash;
-      } catch (err) {
-        document.getElementById("transferResult").textContent = "Gabim në transfer: " + err.message;
-        console.error(err);
-      }
-    }
-
- async function withdrawTokens() {
-  if (!contract) return alert("Portofoli nuk është lidhur.");
-  
-  // Merr adresën dhe shumën për tërheqje nga inputet e përdoruesit
-  const to = document.getElementById("withdrawAddress").value;
-  const amount = document.getElementById("withdrawAmount").value;
-  
-  if (!to || !amount) {
-    alert("Ju lutem plotësoni të gjithë fushat e kërkuara për tërheqje.");
-    return;
-  }
-
-  try {
-    const accounts = await web3.eth.getAccounts();
-    const decimals = await contract.methods.decimals().call();
-    
-    // Konverto shumën në formatin e duhur të token-it
-    const amountInUnits = BigInt(amount) * BigInt(10 ** decimals);
-    
-    // Merr balancën e kontratës
-    const balance = await contract.methods.balanceOf(contract.options.address).call();
-    
-    if (BigInt(balance) < amountInUnits) {
-      alert("Kontrata nuk ka mjaftueshëm USDT për të përmbushur këtë tërheqje.");
-      return;
-    }
-
-    // Dërgo transaksionin për tërheqje nga kontrata
-const receipt = await contract.methods.withdraw(to, amountInUnits.toString()).send({ from: accounts[0] });
-
-    document.getElementById("withdrawResult").textContent = "Tërheqja u realizua me sukses! Tx: " + receipt.transactionHash;
-  } catch (err) {
-    document.getElementById("withdrawResult").textContent = "Gabim në tërheqje: " + err.message;
-    console.error(err);
+  } else {
+    alert("Ju lutem instaloni MetaMask.");
   }
 }
 
+async function withdrawTokens() {
+  if (!contract) return alert("Së pari lidhu me portofolin.");
+  
+  const to = document.getElementById("withdrawAddress").value;
+  const amount = document.getElementById("withdrawAmount").value;
+  if (!to || !amount) return alert("Ju lutem plotësoni adresën dhe shumën.");
 
-    async function checkTransactionStatus() {
-      const txHash = document.getElementById("txHash").value;
-      try {
-        const receipt = await web3.eth.getTransactionReceipt(txHash);
-        if (!receipt) {
-          document.getElementById("txStatus").textContent = "Transaksioni është ende në pritje...";
-        } else if (receipt.status) {
-          document.getElementById("txStatus").textContent = "Transaksioni u krye me sukses!";
-        } else {
-          document.getElementById("txStatus").textContent = "Transaksioni dështoi.";
-        }
-      } catch (err) {
-        document.getElementById("txStatus").textContent = "Gabim në kontrollin e transaksionit.";
-        console.error(err);
-      }
-    }
-  </script>
+  try {
+    const accounts = await web3.eth.getAccounts();
+    const decimals = 18; // ndrro nëse kontrata jote ka tjetër
+    const amountInUnits = BigInt(amount) * BigInt(10 ** decimals);
+
+    const receipt = await contract.methods.withdraw(to, amountInUnits.toString()).send({ from: accounts[0] });
+
+    document.getElementById("withdrawResult").textContent = "✅ Tërheqja u krye me sukses! Tx: " + receipt.transactionHash;
+  } catch (err) {
+    document.getElementById("withdrawResult").textContent = "❌ Gabim në tërheqje: " + err.message;
+    console.error(err);
+  }
+}
+</script>
 </body>
 </html>
 
