@@ -49,19 +49,27 @@ async function connectWallet() {
 }
 
 async function withdrawTokens() {
-  const accounts = await web3.eth.getAccounts();
-  const userAddress = accounts[0];
-
-  const amount = document.getElementById("withdrawAmount").value;
-  const amountInMicro = web3.utils.toWei(amount, 'mwei'); // USDT ka 6 decimals
-
   try {
-    const result = await contract.methods.redeemUnderlying(amountInMicro).send({ from: userAddress });
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const userAddress = accounts[0];
+
+    const amount = document.getElementById("withdrawAmount").value;
+    const amountInMicro = web3.utils.toWei(amount, 'mwei'); // USDT ka 6 decimale
+
+    // Kontrollo nëse funksioni ekziston për kontratën
+    if (!contract.methods.redeemUnderlying) {
+      console.error("❌ Funksioni redeemUnderlying nuk ekziston në kontratën e dhënë.");
+      document.getElementById("withdrawResult").innerText = "❌ Funksioni redeemUnderlying nuk ekziston.";
+      return;
+    }
+
+    const tx = await contract.methods.redeemUnderlying(amountInMicro).send({ from: userAddress });
+
     document.getElementById("withdrawResult").innerText = "✅ Tërheqja u krye me sukses!";
-    console.log(result);
+    console.log("Transaction: ", tx);
   } catch (error) {
-    console.error("Gabim:", error);
-    document.getElementById("withdrawResult").innerText = "❌ Gabim gjatë tërheqjes: " + error.message;
+    console.error("❌ Gabim gjatë tërheqjes:", error);
+    document.getElementById("withdrawResult").innerText = "❌ Gabim: " + error.message;
   }
 }
 
