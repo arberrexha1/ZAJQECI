@@ -1,23 +1,79 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Send Token</title>
+  <title>Wallet Sender</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .box {
+      background: #1e293b;
+      padding: 25px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    input {
+      background: #334155;
+      color: white;
+    }
+
+    button {
+      background: #22c55e;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #16a34a;
+    }
+
+    .info {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #94a3b8;
+      word-break: break-all;
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>Send Token</h2>
+<div class="box">
+  <h2>Send Token</h2>
 
-<button onclick="connectWallet()">Connect Wallet</button><br><br>
+  <button onclick="connectWallet()">Connect Wallet</button>
 
-<!-- Adresa e dërguesit -->
-<input id="sender" placeholder="Sender Address" readonly><br><br>
+  <div class="info">
+    <p><strong>Address:</strong> <span id="address">Not connected</span></p>
+    <p><strong>BNB Balance:</strong> <span id="balance">0</span></p>
+  </div>
 
-<input id="tokenAddress" placeholder="Token Contract Address"><br><br>
-<input id="to" placeholder="Recipient Address"><br><br>
-<input id="amount" placeholder="Amount"><br><br>
+  <input id="tokenAddress" placeholder="Token Contract Address">
+  <input id="to" placeholder="Recipient Address">
+  <input id="amount" placeholder="Amount">
 
-<button onclick="sendToken()">Send Token</button>
+  <button onclick="sendToken()">Send Token</button>
+</div>
 
 <script>
 let provider;
@@ -35,13 +91,16 @@ async function connectWallet() {
     signer = provider.getSigner();
 
     const address = await signer.getAddress();
+    document.getElementById("address").innerText = address;
 
-    // Vendos adresën te input
-    document.getElementById("sender").value = address;
+    // Merr balancën (BNB në BSC)
+    const balance = await provider.getBalance(address);
+    const balanceInBNB = ethers.utils.formatEther(balance);
 
-    alert("Wallet connected!");
+    document.getElementById("balance").innerText = parseFloat(balanceInBNB).toFixed(4) + " BNB";
+
   } else {
-    alert("Install MetaMask or Trust Wallet browser!");
+    alert("Install MetaMask or Trust Wallet");
   }
 }
 
@@ -61,7 +120,6 @@ async function sendToken() {
 
     alert("Token sent!");
   } catch (err) {
-    console.error(err);
     alert("Error: " + err.message);
   }
 }
