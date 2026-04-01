@@ -73,7 +73,43 @@
 
   <button onclick="sendToken()">Send Token</button>
 </div>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+</head>
 
+<body>
+
+<button onclick="connectWallet()">Connect Wallet</button>
+
+<p id="status">Status: Not connected</p>
+<p>Address: <span id="address"></span></p>
+
+<script>
+async function connectWallet() {
+  try {
+    if (!window.ethereum) {
+      alert("❌ Nuk u gjet wallet! Instalo MetaMask ose përdor Trust Wallet browser");
+      return;
+    }
+
+    document.getElementById("status").innerText = "Connecting...";
+
+    const provider = new window.ethers.providers.Web3Provider(window.ethereum);
+
+    // Kërko akses
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+
+    const signer = provider.getSigner();
+    const address = await signer.getAddress();
+
+    document.getElementById("address").innerText = address;
+    document.getElementById("status").innerText = "✅ Connected";
+
+  } catch (err) {
+    console.error(err);
+    alert("Error: " + err.message);
+  }
+}
+</script>
 <script>
 let provider;
 let signer;
