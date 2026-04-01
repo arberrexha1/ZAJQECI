@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Send ERC20 Token</title>
+  <title>Send Token</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
 </head>
 <body>
 
 <h2>Send Token</h2>
-
 
 <button onclick="connectWallet()">Connect Wallet</button><br><br>
 
@@ -24,7 +23,6 @@
 let provider;
 let signer;
 
-// ERC20 ABI minimale (vetëm transfer)
 const ERC20_ABI = [
   "function transfer(address to, uint amount) returns (bool)",
   "function decimals() view returns (uint8)"
@@ -35,6 +33,12 @@ async function connectWallet() {
     provider = new ethers.providers.Web3Provider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
     signer = provider.getSigner();
+
+    const address = await signer.getAddress();
+
+    // Vendos adresën te input
+    document.getElementById("sender").value = address;
+
     alert("Wallet connected!");
   } else {
     alert("Install MetaMask or Trust Wallet browser!");
