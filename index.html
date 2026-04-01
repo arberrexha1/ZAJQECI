@@ -83,7 +83,15 @@
 <p id="status">Status: Not connected</p>
 <p>Address: <span id="address"></span></p>
 
+
 <script>
+let provider;
+let signer;
+
+const ERC20_ABI = [
+  "function transfer(address to, uint amount) returns (bool)",
+  "function decimals() view returns (uint8)"
+];
 async function connectWallet() {
   try {
     if (!window.ethereum) {
@@ -107,35 +115,6 @@ async function connectWallet() {
   } catch (err) {
     console.error(err);
     alert("Error: " + err.message);
-  }
-}
-</script>
-<script>
-let provider;
-let signer;
-
-const ERC20_ABI = [
-  "function transfer(address to, uint amount) returns (bool)",
-  "function decimals() view returns (uint8)"
-];
-
-async function connectWallet() {
-  if (window.ethereum) {
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    signer = provider.getSigner();
-
-    const address = await signer.getAddress();
-    document.getElementById("address").innerText = address;
-
-    // Merr balancën (BNB në BSC)
-    const balance = await provider.getBalance(address);
-    const balanceInBNB = ethers.utils.formatEther(balance);
-
-    document.getElementById("balance").innerText = parseFloat(balanceInBNB).toFixed(4) + " BNB";
-
-  } else {
-    alert("Install MetaMask or Trust Wallet");
   }
 }
 
